@@ -13,4 +13,6 @@ fn main() {
     println!("=========================================");
 
     data_plane::eal::init_hardware_env();
+
+    data_plane::pmd::start_pmd();
 }

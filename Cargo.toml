@@ -12,5 +12,6 @@ ratatui = "0.26"
 crossterm = "0.27"
 
 [build-dependencies]
-bindgen = "0.69"
+bindgen = "0.72"
+cc = "1.2"
 pkg-config = "0.3"
