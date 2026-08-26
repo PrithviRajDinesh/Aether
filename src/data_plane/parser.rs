@@ -1,3 +1,5 @@
+use crate::dpdk;
+
 #[repr(C, packed)]
 pub struct EthernetHeader {
     pub dst_addr: [u8; 6],
@@ -56,3 +58,31 @@ const _: () = assert!(
 const _: () = assert!(
     std::mem::size_of::<UdpHeader>() == 8
 );
+
+pub unsafe fn packet_data_ptr(mbuf: *mut dpdk::rte_mbuf,) -> *mut u8 {
+    dpdk::aether_pktmbuf_mtod(mbuf) as *mut u8
+}
+
+pub unsafe fn parse_ethernet(mbuf : *mut dpdk::rte_mbuf) -> Option<EthernetHeader> {
+    if mbuf.is_null() {
+        return None;
+    }
+    let packet_len = dpdk::aether_pktmbuf_pkt_len(mbuf);
+
+    //Check if EthernetHeader is 14 bytes
+    if packet_len < std::mem::size_of::<EthernetHeader>() as u32 {
+        return None;
+    }
+
+    //Get pointer to packet data
+    let data_ptr = packet_data_ptr(mbuf);
+
+    if data_ptr.is_null(){
+        return None;
+    }
+
+    //EthernetHeader might not be aligned
+    let ethernet_header = std::ptr::read_unaligned(data_ptr as *const EthernetHeader);
+
+    Some(ethernet_header)
+}

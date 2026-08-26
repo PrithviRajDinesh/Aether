@@ -10,3 +10,6 @@ uint16_t aether_eth_rx_burst(
     struct rte_mbuf **rx_pkts,
     uint16_t nb_pkts
 );
+
+void *aether_pktmbuf_mtod(struct rte_mbuf *mbuf);
+uint32_t aether_pktmbuf_pkt_len(struct rte_mbuf *mbuf);
