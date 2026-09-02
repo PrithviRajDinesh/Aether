@@ -1,3 +1,4 @@
+use crate::data_plane::queue;
 #[allow(non_upper_case_globals)]
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -13,6 +14,8 @@ fn main() {
     println!("=========================================");
 
     data_plane::eal::init_hardware_env();
+
+    queue::init_packet_queue();
 
     data_plane::pmd::start_pmd();
 }

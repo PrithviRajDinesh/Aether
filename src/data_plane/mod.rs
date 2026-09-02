@@ -4,3 +4,4 @@ pub mod parser;
 pub mod ring;
 pub mod lb;
 pub mod rewrite;
+pub mod queue;
