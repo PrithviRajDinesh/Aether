@@ -1,6 +1,6 @@
 use std::ptr;
 use std::thread;
-
+use crate::data_plane::rewrite;
 use core_affinity;
 
 use crate::dpdk;
@@ -55,7 +55,30 @@ pub fn start_pmd() {
                 )
             };
 
-            core::hint::black_box(nb_rx);
+            if nb_rx > 0 {
+                let backend_ip = u32::from_be_bytes([10, 0, 0, 11]);
+
+                for i in 0..nb_rx as usize {
+                    let mbuf = rx_mbufs[i];
+
+                    let rewritten = unsafe {
+                        rewrite::rewrite_ipv4_tcp_destination(
+                            mbuf,
+                            backend_ip,
+                            8080,
+                        )
+                    };
+
+                    if rewritten {
+                        println!("Packet destination rewritten");
+                    }
+                    else{
+                        println!("Packet was not IPV4/TCP");
+                    }
+                }
+            }
+
+            core::hint::black_box(nb_rx); 
         }
     });
 

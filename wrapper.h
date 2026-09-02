@@ -4,6 +4,13 @@
 #include <rte_memcpy.h>
 #include <rte_version.h>
 
+void aether_mbuf_set_tx_checksum_offload(
+    struct rte_mbuf *mbuf,
+    uint16_t l2_len,
+    uint16_t l3_len,
+    uint16_t l4_len
+);
+
 uint16_t aether_eth_rx_burst(
     uint16_t port_id,
     uint16_t queue_id,
@@ -12,4 +19,5 @@ uint16_t aether_eth_rx_burst(
 );
 
 void *aether_pktmbuf_mtod(struct rte_mbuf *mbuf);
+
 uint32_t aether_pktmbuf_pkt_len(struct rte_mbuf *mbuf);
