@@ -18,6 +18,21 @@ uint16_t aether_eth_rx_burst(
     uint16_t nb_pkts
 );
 
-void *aether_pktmbuf_mtod(struct rte_mbuf *mbuf);
+uint16_t aether_eth_tx_burst(
+    uint16_t port_id,
+    uint16_t queue_id,
+    struct rte_mbuf **tx_pkts,
+    uint16_t nb_pkts
+);
 
-uint32_t aether_pktmbuf_pkt_len(struct rte_mbuf *mbuf);
+void *aether_pktmbuf_mtod(
+    struct rte_mbuf *mbuf
+);
+
+uint32_t aether_pktmbuf_pkt_len(
+    struct rte_mbuf *mbuf
+);
+
+void aether_pktmbuf_free(
+    struct rte_mbuf *mbuf
+);

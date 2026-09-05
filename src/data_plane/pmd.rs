@@ -1,36 +1,31 @@
 use std::ptr;
 use std::thread;
-use crate::data_plane::rewrite;
 use core_affinity;
-
+use crate::data_plane::queue;
 use crate::dpdk;
 
 const PORT_ID: u16 = 0;
 const RX_QUEUE_ID: u16 = 0;
+
 const BURST_SIZE: usize = 32;
 
-pub fn start_pmd() {
-    let core_ids = core_affinity::get_core_ids()
-        .expect("Failed to get CPU core IDs");
-
-    if core_ids.is_empty() {
-        panic!("No CPU cores available for PMD");
-    }
-
-    let core_id = core_ids[0];
-
+pub fn start_pmd(
+    core_id: core_affinity::CoreId,
+) {
     println!(
         "PMD                : Starting on {:?}",
         core_id
     );
 
     let handle = thread::spawn(move || {
-
-        // Pin PMD thread to its CPU core
-        let success = core_affinity::set_for_current(core_id);
+        let success =
+            core_affinity::set_for_current(core_id);
 
         if !success {
-            panic!("Failed to pin PMD thread to {:?}", core_id);
+            panic!(
+                "Failed to pin PMD thread to {:?}",
+                core_id
+            );
         }
 
         println!(
@@ -38,13 +33,12 @@ pub fn start_pmd() {
             core_id
         );
 
-        // RX packet pointer array
-        let mut rx_mbufs: [*mut dpdk::rte_mbuf; BURST_SIZE] =
+        let mut rx_mbufs:
+            [*mut dpdk::rte_mbuf; BURST_SIZE] =
             [ptr::null_mut(); BURST_SIZE];
 
         println!("PMD Polling        : STARTED");
 
-        // PMD polling loop
         loop {
             let nb_rx = unsafe {
                 dpdk::aether_eth_rx_burst(
@@ -56,32 +50,33 @@ pub fn start_pmd() {
             };
 
             if nb_rx > 0 {
-                let backend_ip = u32::from_be_bytes([10, 0, 0, 11]);
-
                 for i in 0..nb_rx as usize {
                     let mbuf = rx_mbufs[i];
+                    let packet =
+                        queue::PacketPtr::new(mbuf);
 
-                    let rewritten = unsafe {
-                        rewrite::rewrite_ipv4_tcp_destination(
-                            mbuf,
-                            backend_ip,
-                            8080,
-                        )
-                    };
+                    match queue::rx_packet_queue().push(packet) {
+                        Ok(()) => {
+                            // println!("PMD -> Worker Queue");
+                        }
 
-                    if rewritten {
-                        println!("Packet destination rewritten");
-                    }
-                    else{
-                        println!("Packet was not IPV4/TCP");
+                        Err(packet) => {
+                            println!(
+                                "RX queue full - dropping packet"
+                            );
+
+                            unsafe {
+                                dpdk::aether_pktmbuf_free(
+                                    packet.as_mbuf()
+                                );
+                            }
+                        }
                     }
                 }
             }
-
-            core::hint::black_box(nb_rx); 
+            core::hint::black_box(nb_rx);
         }
     });
-
     handle
         .join()
         .expect("PMD thread panicked");

@@ -6,11 +6,12 @@ fn main() {
 
     println!("cargo:rerun-if-changed=wrapper.h");
     println!("cargo:rerun-if-changed=src/data_plane/dpdk_shim.c");
-    
+
     let mut c_build = cc::Build::new();
 
     c_build
-        .file("src/data_plane/dpdk_shim.c");
+        .file("src/data_plane/dpdk_shim.c")
+        .flag("-mssse3");
 
     for path in &libs.include_paths {
         c_build.include(path);
@@ -23,7 +24,6 @@ fn main() {
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         .derive_debug(false)
         .layout_tests(false)
-
         .opaque_type("rte_arp_ipv4")
         .opaque_type("rte_arp_hdr")
         .opaque_type("rte_l2tpv2_combined_msg_hdr")

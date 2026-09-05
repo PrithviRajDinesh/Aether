@@ -4,8 +4,6 @@ use std::ptr;
 use crate::dpdk;
 
 pub fn init_hardware_env() {
-    // DPDK arguments for testing EAL without any PCI devices
-    // or virtual TAP devices.
     let dpdk_args = vec![
         "aether",
         "--no-pci",
@@ -127,7 +125,7 @@ pub fn init_hardware_env() {
         dpdk::rte_eth_rx_queue_setup(
             port_id,
             rx_queue_id,
-            nb_rx_queue,
+            nb_rx_desc,
             rx_socket_id,
             &rx_conf,
             mbuf_pool,

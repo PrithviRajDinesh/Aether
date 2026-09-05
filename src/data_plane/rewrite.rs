@@ -48,7 +48,6 @@ pub unsafe fn rewrite_ipv4_tcp_destination(
     let ether_type =
         u16::from_be(ethernet_header.ether_type);
 
-    // We only handle IPv4.
     if ether_type != ETHERTYPE_IPV4 {
         return false;
     }
@@ -65,13 +64,11 @@ pub unsafe fn rewrite_ipv4_tcp_destination(
         return false;
     }
 
-    // Read IPv4 header for inspection.
     let ipv4_header =
         std::ptr::read_unaligned(
             ipv4_ptr as *const Ipv4Header
         );
 
-    // Verify IPv4 version.
     let version =
         ipv4_header.version_ihl >> 4;
 
@@ -79,7 +76,6 @@ pub unsafe fn rewrite_ipv4_tcp_destination(
         return false;
     }
 
-    // IHL is stored in 32-bit words.
     let ihl =
         (ipv4_header.version_ihl & 0x0f) as usize;
 
@@ -95,7 +91,6 @@ pub unsafe fn rewrite_ipv4_tcp_destination(
         return false;
     }
 
-    // We only handle TCP.
     if ipv4_header.next_protocol != IP_PROTOCOL_TCP {
         return false;
     }
@@ -130,29 +125,12 @@ pub unsafe fn rewrite_ipv4_tcp_destination(
     if packet_len < tcp_offset + tcp_header_len {
         return false;
     }
-    //Test
-    let old_dst_ip = std::ptr::read_unaligned(
-        std::ptr::addr_of!((*ipv4_ptr).dst_addr)
-    );
-
-    let old_dst_port = std::ptr::read_unaligned(
-        std::ptr::addr_of!((*tcp_ptr).dst_port)
-    );
-
-    println!(
-        "BEFORE: dst_ip={:?}, dst_port={}",
-        old_dst_ip.to_be_bytes(),
-        u16::from_be(old_dst_port)
-    );
-    //
-
     // IN-PLACE DESTINATION IP REWRITE
     std::ptr::write_unaligned(
         std::ptr::addr_of_mut!((*ipv4_ptr).dst_addr),
         dst_ip.to_be(),
     );
 
-    // IN-PLACE DESTINATION TCP PORT REWRITE
     std::ptr::write_unaligned(
         std::ptr::addr_of_mut!((*tcp_ptr).dst_port),
         dst_port.to_be(),
@@ -164,21 +142,5 @@ pub unsafe fn rewrite_ipv4_tcp_destination(
         ipv4_header_len as u16,
         tcp_header_len as u16,
     );
-    //test
-    let new_dst_ip = std::ptr::read_unaligned(
-        std::ptr::addr_of!((*ipv4_ptr).dst_addr)
-    );
-
-    let new_dst_port = std::ptr::read_unaligned(
-        std::ptr::addr_of!((*tcp_ptr).dst_port)
-    );
-
-    println!(
-        "AFTER: dst_ip={:?}, dst_port={}",
-        new_dst_ip.to_be_bytes(),
-        u16::from_be(new_dst_port)
-    );
-    //
-
     true
 }

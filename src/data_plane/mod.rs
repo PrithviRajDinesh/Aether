@@ -5,3 +5,5 @@ pub mod ring;
 pub mod lb;
 pub mod rewrite;
 pub mod queue;
+pub mod worker;
+pub mod tx;
