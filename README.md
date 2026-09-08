@@ -68,8 +68,8 @@ mode.  The measured forwarding latency on the same hardware drops to **~40 ns me
 │  │  ↓ 32 pkt  │    │ TCP dst port rewrite│    │ 32-pkt burst      │  │
 │  │  batches   │    │ HW csum offload     │    │ 100 µs timeout    │  │
 │  └────────────┘    └─────────────────────┘    └───────────────────┘  │
-│        │                    │ rdtsc timing            │               │
-│        ▼                    ▼                         ▼               │
+│        │                    │ rdtsc timing            │              │
+│        ▼                    ▼                         ▼              │
 │  ┌──────────────────────────────────────────────────────────────┐    │
 │  │          ArrayQueue<PacketPtr>   (lock-free, 4096 slots)     │    │
 │  │          RX ring ──────────────────── TX ring                │    │
