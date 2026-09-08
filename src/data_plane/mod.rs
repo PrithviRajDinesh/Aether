@@ -7,3 +7,4 @@ pub mod rewrite;
 pub mod queue;
 pub mod worker;
 pub mod tx;
+pub mod metrics;

@@ -1,19 +1,28 @@
+use std::env;
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 use std::ptr;
 use crate::dpdk;
 
 pub fn init_hardware_env() {
+    // Set this to the PCI address of your DPDK-bound NIC, e.g. 0000:02:00.0
+    let pci_id = env::var("AETHER_PCI_ID")
+        .expect("Set AETHER_PCI_ID to the PCI address of the DPDK-bound NIC");
+
     let dpdk_args = vec![
-        "aether",
-        "--no-pci",
-        "--vdev=net_tap0,iface=dtap0",
+        "aether".to_string(),
+        "-l".to_string(),
+        "0-2".to_string(),
+        "-n".to_string(),
+        "4".to_string(),
+        "-a".to_string(),
+        pci_id,
     ];
 
     // Convert Rust strings into null-terminated C strings.
     let c_strings: Vec<CString> = dpdk_args
         .iter()
-        .map(|&arg| CString::new(arg).expect("Failed to convert argument to CString"))
+        .map(|arg| CString::new(arg.as_str()).expect("Failed to convert argument to CString"))
         .collect();
 
     // Extract raw pointers for the DPDK C API.

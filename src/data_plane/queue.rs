@@ -62,3 +62,11 @@ pub fn tx_packet_queue() -> &'static ArrayQueue<PacketPtr> {
         .get()
         .expect("TX packet queue not initialized")
 }
+
+pub fn rx_queue_len() -> usize {
+    rx_packet_queue().len()
+}
+
+pub fn tx_queue_len() -> usize {
+    tx_packet_queue().len()
+}
