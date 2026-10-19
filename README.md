@@ -62,7 +62,7 @@ mode.  The measured forwarding latency on the same hardware drops to **~40 ns me
 │                                                                      │
 │  ┌────────────┐    ┌─────────────────────┐    ┌───────────────────┐  │
 │  │  PMD / RX  │    │   Worker / Rewrite  │    │    TX Pipeline    │  │
-│  │  (core 0)  │───▶│     (core 1)        │───▶│     (core 2)      │  │
+│  │  (core 0)  │───▶│     (core 1)        │───▶│     (core 2)     │  │
 │  │            │    │                     │    │                   │  │
 │  │ rx_burst() │    │ IPv4 dst IP rewrite │    │ tx_burst()        │  │
 │  │  ↓ 32 pkt  │    │ TCP dst port rewrite│    │ 32-pkt burst      │  │
